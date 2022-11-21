@@ -19,7 +19,7 @@ int main()
     RngStream RngArray[nP];
 
     int world_rank, N, is_triangle = 0, is_obtuse = 0;
-    N = 10;
+    N = 1000000;
     double rand = -1.1l, a, b, s;
     double segmentos[3] = {0, 0, 0};
 
@@ -33,43 +33,45 @@ int main()
             {
                 a = RngArray[world_rank].RandU01();
                 b = RngArray[world_rank].RandU01();
+                // volviendo a los segmentos positivos
                 if(a > b){
                     segmentos[0] = b;
                     segmentos[1] = a - b;
                     segmentos[2] = max_rand - a;
-                    printf("p: %d segmentos: a: %f | b: %f | c: %f\n", world_rank, segmentos[0], segmentos[1], segmentos[2]);
-                    if(b <= ((a - b) + (1 - a)) && (a - b) <= (b + 1 - a) && (1 - a) <= (a - b + 1 - a))
-                    {    
-                        is_triangle++;
-                        
-                        s = pow(segmentos[1], 2) + pow(segmentos[2], 2) - pow(segmentos[0], 2);
-                        s = s/(2*segmentos[1]*segmentos[2]);
-                        printf("p: %d %f\n", world_rank, s);
-                        if(s <= 0)
-                            is_obtuse++;
-                        else{
-                            s = pow(segmentos[0], 2) + pow(segmentos[2], 2) - pow(segmentos[1], 2);
-                            s = s/(2*segmentos[0]*segmentos[2]);
-                            printf("p: %d %f\n", world_rank, s);
-                            if(s <= 0)
-                                is_obtuse++;
-                            else{
-                            s = pow(segmentos[0], 2) + pow(segmentos[1], 2) - pow(segmentos[2], 2);
-                            s = s/(2*segmentos[0]*segmentos[1]);
-                            printf("p: %d %f\n", world_rank, s);
-                            if(s <= 0)
-                                is_obtuse++;
-                            }
-                        }
-                    }
                 }else{
                     segmentos[0] = a;
                     segmentos[1] = b - a;
-                    segmentos[2] = 1 - b;
+                    segmentos[2] = max_rand - b;
+                }
+                // printf("p: %d segmentos: a: %f | b: %f | c: %f\n", world_rank, segmentos[0], segmentos[1], segmentos[2]);
+                // Se da por hecho de que a + b + c = 1
+                if(segmentos[0] <= 0.5 && segmentos[1] <= 0.5 && segmentos[2] <= 0.5)
+                {
+                    is_triangle++;
+                    s = pow(segmentos[1], 2) + pow(segmentos[2], 2) - pow(segmentos[0], 2);
+                    s = s/(2*segmentos[1]*segmentos[2]);
+                    // printf("p: %d %f\n", world_rank, s);
+                    if(s <= 0)
+                        is_obtuse++;
+                    else{
+                        s = pow(segmentos[0], 2) + pow(segmentos[2], 2) - pow(segmentos[1], 2);
+                        s = s/(2*segmentos[0]*segmentos[2]);
+                        // printf("p: %d %f\n", world_rank, s);
+                        if(s <= 0)
+                            is_obtuse++;
+                        else{
+                        s = pow(segmentos[0], 2) + pow(segmentos[1], 2) - pow(segmentos[2], 2);
+                        s = s/(2*segmentos[0]*segmentos[1]);
+                        // printf("p: %d %f\n", world_rank, s);
+                        if(s <= 0)
+                            is_obtuse++;
+                        }
+                    }
                 }
             }
         }
     }
+    
     printf("Triu: %d, Obtuse: %d\n", is_triangle, is_obtuse);
     return 0;
 }
