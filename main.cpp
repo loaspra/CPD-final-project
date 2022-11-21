@@ -21,7 +21,7 @@ int main()
     int world_rank, N, is_triangle = 0, is_obtuse = 0;
 
     // numero de experimientos independidentes para la simulacion Monte-Carlo
-    N = 1000000;
+    N = 10;
     double rand = -1.1l, a, b, s;
     double segmentos[3] = {0, 0, 0};
 
@@ -47,35 +47,45 @@ int main()
                     segmentos[1] = b - a;
                     segmentos[2] = max_rand - b;
                 }
-
                 // El segmento tiene una longitud de max_rand (1), por lo tanto:
                 // a + b + c = 1 aka las sumas de los segmentos deben de dar la longitud total
                 if(segmentos[0] <= 0.5 && segmentos[1] <= 0.5 && segmentos[2] <= 0.5)
                 {
+                    printf("P: %d Segmentos: a: %f b: %f c: %f\n", world_rank, segmentos[0], segmentos[1], segmentos[2]);
                     // si es que ninguno de los segmentos es mayor a la mitad del segmento total
                     // es un triangulo
                     is_triangle++;
 
-                    // calculando el coseno de los 3 angulos
-                    /* PUEDE OPTIMIZARSE, el coseno del lado mayor debe acercarse al 0 o ser negativo (?)*/
-                    s = pow(segmentos[1], 2) + pow(segmentos[2], 2) - pow(segmentos[0], 2);
-                    s = s/(2*segmentos[1]*segmentos[2]);
-                    if(s <= 0)
-                        is_obtuse++;
-                    else{
-                        s = pow(segmentos[0], 2) + pow(segmentos[2], 2) - pow(segmentos[1], 2);
-                        s = s/(2*segmentos[0]*segmentos[2]);
-                        // printf("p: %d %f\n", world_rank, s);
-                        if(s <= 0)
-                            is_obtuse++;
-                        else{
-                            s = pow(segmentos[0], 2) + pow(segmentos[1], 2) - pow(segmentos[2], 2);
-                            s = s/(2*segmentos[0]*segmentos[1]);
-                        // printf("p: %d %f\n", world_rank, s);
-                        if(s <= 0)
-                            is_obtuse++;
+                    // calcular el lado con mayor longitud "s"
+                    if(segmentos[0] > segmentos[1])
+                        if(segmentos[0] > segmentos[2])
+                        {
+                            s = segmentos[0];
+                            a = segmentos[1];
+                            b = segmentos[2];
                         }
-                    }
+                        else
+                        {
+                            s = segmentos[2];
+                            a = segmentos[1];
+                            b = segmentos[0];
+                        }
+                    else
+                        if(segmentos[1] > segmentos[2])
+                        {
+                            s = segmentos[1];
+                            a = segmentos[0];
+                            b = segmentos[2];
+                        }
+                        else
+                        {
+                            s = segmentos[2];
+                            a = segmentos[1];
+                            b = segmentos[0];
+                        }
+                    // ver si el triangulo es obtuso
+                    if(pow(s, 2) >= (pow(a, 2) + pow(b, 2)))
+                        is_obtuse++;
                 }
             }
         }
