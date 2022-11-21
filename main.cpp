@@ -7,6 +7,8 @@ int main()
 {
     // numero de procesos
     const int nP = 4;
+    // maximo valor random posible con el que se trabaja
+    const int max_rand = 1;
     omp_set_num_threads(nP);
 
     unsigned long seed[6] = {1806547166 , 3311292359 ,
@@ -16,9 +18,9 @@ int main()
     RngStream::SetPackageSeed(seed);
     RngStream RngArray[nP];
 
-    int world_rank, N, s, is_triangle = 0, is_obtuse = 0;
+    int world_rank, N, is_triangle = 0, is_obtuse = 0;
     N = 10;
-    double rand = -1.1l, a, b;
+    double rand = -1.1l, a, b, s;
     double segmentos[3] = {0, 0, 0};
 
     #pragma omp parallel private(world_rank, s, a, b, segmentos) firstprivate(rand)
@@ -34,23 +36,29 @@ int main()
                 if(a > b){
                     segmentos[0] = b;
                     segmentos[1] = a - b;
-                    segmentos[2] = 1 - a;
+                    segmentos[2] = max_rand - a;
+                    printf("p: %d segmentos: a: %f | b: %f | c: %f\n", world_rank, segmentos[0], segmentos[1], segmentos[2]);
                     if(b <= ((a - b) + (1 - a)) && (a - b) <= (b + 1 - a) && (1 - a) <= (a - b + 1 - a))
                     {    
                         is_triangle++;
                         
                         s = pow(segmentos[1], 2) + pow(segmentos[2], 2) - pow(segmentos[0], 2);
                         s = s/(2*segmentos[1]*segmentos[2]);
-                        if(s > 90)
+                        printf("p: %d %f\n", world_rank, s);
+                        if(s <= 0)
                             is_obtuse++;
                         else{
                             s = pow(segmentos[0], 2) + pow(segmentos[2], 2) - pow(segmentos[1], 2);
                             s = s/(2*segmentos[0]*segmentos[2]);
-                            if(s > 90)
+                            printf("p: %d %f\n", world_rank, s);
+                            if(s <= 0)
                                 is_obtuse++;
                             else{
                             s = pow(segmentos[0], 2) + pow(segmentos[1], 2) - pow(segmentos[2], 2);
                             s = s/(2*segmentos[0]*segmentos[1]);
+                            printf("p: %d %f\n", world_rank, s);
+                            if(s <= 0)
+                                is_obtuse++;
                             }
                         }
                     }
