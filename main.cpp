@@ -10,7 +10,7 @@ int main()
     // maximo valor random posible con el que se trabaja
     const int max_rand = 1;
     omp_set_num_threads(nP);
-
+    // Inicializando RngStream  
     unsigned long seed[6] = {1806547166 , 3311292359 ,
                                 643431772 , 1162448557 ,
                                 3335719306 , 4161054083};
@@ -19,6 +19,8 @@ int main()
     RngStream RngArray[nP];
 
     int world_rank, N, is_triangle = 0, is_obtuse = 0;
+
+    // numero de experimientos independidentes para la simulacion Monte-Carlo
     N = 1000000;
     double rand = -1.1l, a, b, s;
     double segmentos[3] = {0, 0, 0};
@@ -31,9 +33,11 @@ int main()
         {
             #pragma omp critical
             {
+                // se generaon los 2 puntos aleatorios en el rango {0,1}
                 a = RngArray[world_rank].RandU01();
                 b = RngArray[world_rank].RandU01();
                 // volviendo a los segmentos positivos
+                // armando los segmentos
                 if(a > b){
                     segmentos[0] = b;
                     segmentos[1] = a - b;
@@ -43,14 +47,19 @@ int main()
                     segmentos[1] = b - a;
                     segmentos[2] = max_rand - b;
                 }
-                // printf("p: %d segmentos: a: %f | b: %f | c: %f\n", world_rank, segmentos[0], segmentos[1], segmentos[2]);
-                // Se da por hecho de que a + b + c = 1
+
+                // El segmento tiene una longitud de max_rand (1), por lo tanto:
+                // a + b + c = 1 aka las sumas de los segmentos deben de dar la longitud total
                 if(segmentos[0] <= 0.5 && segmentos[1] <= 0.5 && segmentos[2] <= 0.5)
                 {
+                    // si es que ninguno de los segmentos es mayor a la mitad del segmento total
+                    // es un triangulo
                     is_triangle++;
+
+                    // calculando el coseno de los 3 angulos
+                    /* PUEDE OPTIMIZARSE, el coseno del lado mayor debe acercarse al 0 o ser negativo (?)*/
                     s = pow(segmentos[1], 2) + pow(segmentos[2], 2) - pow(segmentos[0], 2);
                     s = s/(2*segmentos[1]*segmentos[2]);
-                    // printf("p: %d %f\n", world_rank, s);
                     if(s <= 0)
                         is_obtuse++;
                     else{
@@ -60,8 +69,8 @@ int main()
                         if(s <= 0)
                             is_obtuse++;
                         else{
-                        s = pow(segmentos[0], 2) + pow(segmentos[1], 2) - pow(segmentos[2], 2);
-                        s = s/(2*segmentos[0]*segmentos[1]);
+                            s = pow(segmentos[0], 2) + pow(segmentos[1], 2) - pow(segmentos[2], 2);
+                            s = s/(2*segmentos[0]*segmentos[1]);
                         // printf("p: %d %f\n", world_rank, s);
                         if(s <= 0)
                             is_obtuse++;
