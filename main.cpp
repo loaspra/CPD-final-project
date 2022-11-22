@@ -21,11 +21,11 @@ int main()
     int world_rank, N, is_triangle = 0, is_obtuse = 0;
 
     // numero de experimientos independidentes para la simulacion Monte-Carlo
-    N = 10;
-    double rand = -1.1l, a, b, s;
+    N = 1000000;
+    double a, b, s;
     double segmentos[3] = {0, 0, 0};
 
-    #pragma omp parallel private(world_rank, s, a, b, segmentos) firstprivate(rand)
+    #pragma omp parallel private(world_rank, s, a, b, segmentos)
     {
         world_rank = omp_get_thread_num();
         #pragma omp for reduction(+ : is_triangle, is_obtuse)
@@ -51,7 +51,7 @@ int main()
                 // a + b + c = 1 aka las sumas de los segmentos deben de dar la longitud total
                 if(segmentos[0] <= 0.5 && segmentos[1] <= 0.5 && segmentos[2] <= 0.5)
                 {
-                    printf("P: %d Segmentos: a: %f b: %f c: %f\n", world_rank, segmentos[0], segmentos[1], segmentos[2]);
+                    // printf("P: %d Segmentos: a: %f b: %f c: %f\n", world_rank, segmentos[0], segmentos[1], segmentos[2]);
                     // si es que ninguno de los segmentos es mayor a la mitad del segmento total
                     // es un triangulo
                     is_triangle++;
@@ -91,6 +91,6 @@ int main()
         }
     }
     
-    printf("Triu: %d, Obtuse: %d\n", is_triangle, is_obtuse);
+    printf("n Δ: %d, obtusos: %d\n", is_triangle, is_obtuse);
     return 0;
 }
