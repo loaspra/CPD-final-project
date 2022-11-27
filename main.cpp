@@ -84,13 +84,15 @@ int main()
                             b = segmentos[0];
                         }
                     // ver si el triangulo es obtuso
-                    if(pow(s, 2) >= (pow(a, 2) + pow(b, 2)))
+                    if(pow(s, 2) > (pow(a, 2) + pow(b, 2)))
                         is_obtuse++;
                 }
             }
         }
     }
-    
-    printf("n Δ: %d, obtusos: %d\n", is_triangle, is_obtuse);
+
+    printf("numero de iteraciones (N): %d\n", N);
+    printf("numero de procesos (p): %d\n", nP);
+    printf("n Δ: %f, obtusos: %f\n", is_triangle*1.0/N, is_obtuse*1.0/is_triangle);
     return 0;
 }
