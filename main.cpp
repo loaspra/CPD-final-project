@@ -24,7 +24,9 @@ int main()
     N = 1000000;
     double a, b, s;
     double segmentos[3] = {0, 0, 0};
-
+    // measure time
+    double ini;
+    ini = omp_get_wtime();
     #pragma omp parallel private(world_rank, s, a, b, segmentos)
     {
         world_rank = omp_get_thread_num();
@@ -90,7 +92,8 @@ int main()
             }
         }
     }
-
+    ini = omp_get_wtime() - ini;
+    printf("t: %f s\n\n", ini);
     printf("numero de iteraciones (N): %d\n", N);
     printf("numero de procesos (p): %d\n", nP);
     printf("n Δ: %f, obtusos: %f\n", is_triangle*1.0/N, is_obtuse*1.0/is_triangle);
