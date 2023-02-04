@@ -6,7 +6,7 @@
 int main()
 {
     // numero de procesos
-    const int nP = 2;
+    const int nP = 4;
     // maximo valor random posible con el que se trabaja
     const int max_rand = 1;
     omp_set_num_threads(nP);
@@ -21,7 +21,7 @@ int main()
     int world_rank, N, is_triangle = 0, is_obtuse = 0;
 
     // numero de experimientos independidentes para la simulacion Monte-Carlo
-    N = 10000000;
+    N = 1000000;
     double a, b, s;
     double segmentos[3] = {0, 0, 0};
     // measure time
@@ -51,7 +51,6 @@ int main()
             // a + b + c = 1 aka las sumas de los segmentos deben de dar la longitud total
             if(segmentos[0] <= 0.5 && segmentos[1] <= 0.5 && segmentos[2] <= 0.5)
             {
-                // printf("P: %d Segmentos: a: %f b: %f c: %f\n", world_rank, segmentos[0], segmentos[1], segmentos[2]);
                 // si es que ninguno de los segmentos es mayor a la mitad del segmento total
                 // es un triangulo
                 is_triangle++;
